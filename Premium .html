@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reax VPN</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0d0d1a, #05050a);
+            color: #fff;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(0, 212, 255, 0.06), transparent 60%),
+                        radial-gradient(circle at 70% 60%, rgba(123, 47, 252, 0.06), transparent 60%);
+            animation: bgPulse 10s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes bgPulse {
+            0% { transform: scale(1) rotate(0deg); }
+            100% { transform: scale(1.1) rotate(3deg); }
+        }
+
+        .container {
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            z-index: 1;
+            animation: fadeUp 0.6s ease;
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px) scale(0.97); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .header {
+            background: rgba(26, 26, 34, 0.55);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 24px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc, #ff6b6b, #00d4ff);
+            background-size: 300% 300%;
+            border-radius: 26px;
+            z-index: -1;
+            animation: shimmer 6s ease-in-out infinite;
+            opacity: 0.2;
+        }
+
+        .brand {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc, #ff6b6b);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s ease-in-out infinite;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.1);
+        }
+
+        .tag {
+            background: rgba(255, 184, 0, 0.12);
+            color: #ffb800;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 184, 0, 0.15);
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 30px rgba(255, 184, 0, 0.05);
+        }
+
+        .traffic {
+            background: rgba(18, 18, 24, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 20px 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .traffic:hover {
+            border-color: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 8px 40px rgba(0, 212, 255, 0.04);
+        }
+
+        .traffic .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .traffic .row:last-child {
+            border-bottom: none;
+        }
+
+        .traffic .row span:first-child {
+            color: #888;
+            font-weight: 400;
+            font-size: 15px;
+        }
+
+        .traffic .row span:last-child {
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .traffic .row span:last-child .days {
+            color: #666;
+            font-weight: 400;
+            -webkit-text-fill-color: #666;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 28px 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ddd;
+            letter-spacing: -0.3px;
+        }
+
+        .section-title span {
+            background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title .badge {
+            background: rgba(0, 212, 255, 0.08);
+            color: #00d4ff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 40px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            -webkit-text-fill-color: #00d4ff;
+        }
+
+        .key-card {
+            background: rgba(26, 26, 34, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 18px 20px;
+            border-radius: 18px;
+            margin-bottom: 14px;
+            border: 2px solid rgba(0, 212, 255, 0.08);
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.03), rgba(123, 47, 252, 0.03));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            border-radius: 20px;
+            z-index: -1;
+        }
+
+        .key-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 212, 255, 0.06);
+        }
+
+        .key-card:hover::before {
+            opacity: 1;
+        }
+
+        .key-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .protocol {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.04);
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #00c853, #00e676);
+            border: none;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(4px);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.4px;
+            box-shadow: 0 0 20px rgba(0, 232, 118, 0.15);
+        }
+
+        .btn-copy:hover {
+            background: linear-gradient(135deg, #00e676, #69f0ae);
+            box-shadow: 0 0 40px rgba(0, 232, 118, 0.4);
+            transform: scale(1.05);
+            color: #fff;
+        }
+
+        .btn-copy:active {
+            transform: scale(0.93);
+            box-shadow: 0 0 60px rgba(0, 232, 118, 0.5);
+        }
+
+        .btn-copy-all {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(123, 47, 252, 0.08));
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            width: 100%;
+            margin-bottom: 20px;
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.3px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.02);
+        }
+
+        .btn-copy-all:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(123, 47, 252, 0.15));
+            border-color: #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.08);
+            transform: scale(1.01);
+        }
+
+        .btn-copy-all:active {
+            transform: scale(0.97);
+        }
+
+        .address {
+            background: rgba(11, 11, 15, 0.6);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 10px;
+            border-left: 3px solid #00d4ff;
+            word-break: break-all;
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 0 30px rgba(0, 212, 255, 0.02);
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tag-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            transition: all 0.2s ease;
+        }
+
+        .tag-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #aaa;
+        }
+
+        .tag-item strong {
+            color: #ddd;
+            font-weight: 500;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(31, 31, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 14px 32px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            box-shadow: 0 8px 48px rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes toastIn {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(20px); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .brand { font-size: 22px; }
+            .header { padding: 16px 18px; }
+            .traffic { padding: 16px 18px; }
+            .key-card { padding: 14px 16px; }
+            .btn-copy { font-size: 12px; padding: 6px 14px; }
+            .address { font-size: 13px; }
+            .section-title { font-size: 20px; }
+            .btn-copy-all { font-size: 14px; padding: 10px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation"></div>
+
+    <div class="container">
+
+        <div class="header">
+            <div class="brand">Reax VPN</div>
+            <div class="tag">Abuev</div>
+        </div>
+
+        <div class="traffic">
+            <div class="row"><span>Подписка</span><span>Активна</span></div>
+            <div class="row"><span>Действует</span><span>28.08.2026 <span class="days">(29 дн.)</span></span></div>
+            <div class="row"><span>Ключей</span><span>55</span></div>
+        </div>
+
+        <div class="section-title">
+            🌍 <span>Серверы</span>
+            <span class="badge">55</span>
+        </div>
+
+        <button class="btn-copy-all" onclick="copyAllKeys()">📋 Скопировать все ключи</button>
+
+        <!-- КЛЮЧ 1 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.126.204.43:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.126.204.43:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 2 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.23:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=6ycuxfrEPsqE9eXZ5_Osbnx4g6hXWmkc8pFuAJkJ4jY&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.23:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 3 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.196.224:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.196.224:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 4 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.189:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.189:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 5 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://d4d22525-a6f0-4919-b745-448c22f39f34@77.221.151.158:443?encryption=none&fp=random&pbk=hEyhCVfwVjIWoXIkG_VfqJ0DsgXbhjap5Waqwq-NqGE&security=reality&sid=cbf2ac&sni=yandex.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">77.221.151.158:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> yandex.ru</span>
+                <span class="tag-item"><strong>fp</strong> random</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 6 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://c7e9c591-2764-423a-afca-efbd010fd396@89.111.172.106:2053?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">89.111.172.106:2053</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 7 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.57.2:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.57.2:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 8 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://fd22ad82-2d89-4338-b72c-5092ae699c7d@194.67.102.65:8880?encryption=none&security=none&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">194.67.102.65:8880</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> none</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 9 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://2c634977-584e-4e1f-b501-1b70c77a6743@78.159.245.32:28474?encryption=none&flow=xtls-rprx-vision&security=tls&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.245.32:28474</div>
+            <div class="tags">
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 10 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.151.102.99:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.151.102.99:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 11 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@78.159.250.230:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.250.230:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 12 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://3fe5c47b-f46c-4baf-9336-c868feb6545e@46.254.17.226:443?encryption=none&flow=xtls-rprx-vision&fp=qq&pbk=knrqm393ghxJNYj-4qu2BYpwpG5_zOG5h5-H7yyyR38&security=reality&sid=0be28edc1b0278d6&sni=wl-8-1.nodes.ac&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">46.254.17.226:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> wl-8-1.nodes.ac</span>
+                <span class="tag-item"><strong>fp</strong> qq</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 13 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.130.43.15:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.130.43.15:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 14 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://1fecf299-efa6-45f1-b7f8-f1cc8814ef4a@5.188.115.69:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">5.188.115.69:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 15 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://16785a51-045d-4939-8969-4869f469ff92@81.163.23.243:8443?encryption=none&fp=firefox&pbk=K9vJ2zLFxi3VTmrguyLC1KrC920axeFSeA8x_xY4Xhw&security=reality&sni=id.pervye.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">81.163.23.243:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> id.pervye.ru</span>
+                <span class="tag-item"><strong>fp</strong> firefox</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 16 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.126.204.43:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.126.204.43:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 17 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.23:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=6ycuxfrEPsqE9eXZ5_Osbnx4g6hXWmkc8pFuAJkJ4jY&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.23:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 18 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.196.224:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.196.224:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 19 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.189:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.189:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 20 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://d4d22525-a6f0-4919-b745-448c22f39f34@77.221.151.158:443?encryption=none&fp=random&pbk=hEyhCVfwVjIWoXIkG_VfqJ0DsgXbhjap5Waqwq-NqGE&security=reality&sid=cbf2ac&sni=yandex.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">77.221.151.158:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> yandex.ru</span>
+                <span class="tag-item"><strong>fp</strong> random</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 21 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://c7e9c591-2764-423a-afca-efbd010fd396@89.111.172.106:2053?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">89.111.172.106:2053</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 22 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.57.2:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.57.2:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 23 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://fd22ad82-2d89-4338-b72c-5092ae699c7d@194.67.102.65:8880?encryption=none&security=none&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">194.67.102.65:8880</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> none</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 24 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://2c634977-584e-4e1f-b501-1b70c77a6743@78.159.245.32:28474?encryption=none&flow=xtls-rprx-vision&security=tls&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.245.32:28474</div>
+            <div class="tags">
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 25 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.151.102.99:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.151.102.99:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 26 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@78.159.250.230:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.250.230:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 27 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://3fe5c47b-f46c-4baf-9336-c868feb6545e@46.254.17.226:443?encryption=none&flow=xtls-rprx-vision&fp=qq&pbk=knrqm393ghxJNYj-4qu2BYpwpG5_zOG5h5-H7yyyR38&security=reality&sid=0be28edc1b0278d6&sni=wl-8-1.nodes.ac&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">46.254.17.226:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> wl-8-1.nodes.ac</span>
+                <span class="tag-item"><strong>fp</strong> qq</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 28 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.130.43.15:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.130.43.15:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 29 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://1fecf299-efa6-45f1-b7f8-f1cc8814ef4a@5.188.115.69:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">5.188.115.69:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 30 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://16785a51-045d-4939-8969-4869f469ff92@81.163.23.243:8443?encryption=none&fp=firefox&pbk=K9vJ2zLFxi3VTmrguyLC1KrC920axeFSeA8x_xY4Xhw&security=reality&sni=id.pervye.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">81.163.23.243:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> id.pervye.ru</span>
+                <span class="tag-item"><strong>fp</strong> firefox</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 31 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.126.204.43:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.126.204.43:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 32 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.23:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=6ycuxfrEPsqE9eXZ5_Osbnx4g6hXWmkc8pFuAJkJ4jY&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.23:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 33 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.196.224:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.196.224:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 34 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.189:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.189:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 35 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://d4d22525-a6f0-4919-b745-448c22f39f34@77.221.151.158:443?encryption=none&fp=random&pbk=hEyhCVfwVjIWoXIkG_VfqJ0DsgXbhjap5Waqwq-NqGE&security=reality&sid=cbf2ac&sni=yandex.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">77.221.151.158:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> yandex.ru</span>
+                <span class="tag-item"><strong>fp</strong> random</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 36 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://c7e9c591-2764-423a-afca-efbd010fd396@89.111.172.106:2053?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">89.111.172.106:2053</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 37 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.57.2:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.57.2:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 38 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://fd22ad82-2d89-4338-b72c-5092ae699c7d@194.67.102.65:8880?encryption=none&security=none&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">194.67.102.65:8880</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> none</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 39 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://2c634977-584e-4e1f-b501-1b70c77a6743@78.159.245.32:28474?encryption=none&flow=xtls-rprx-vision&security=tls&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.245.32:28474</div>
+            <div class="tags">
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 40 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.151.102.99:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.151.102.99:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 41 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@78.159.250.230:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.250.230:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 42 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://3fe5c47b-f46c-4baf-9336-c868feb6545e@46.254.17.226:443?encryption=none&flow=xtls-rprx-vision&fp=qq&pbk=knrqm393ghxJNYj-4qu2BYpwpG5_zOG5h5-H7yyyR38&security=reality&sid=0be28edc1b0278d6&sni=wl-8-1.nodes.ac&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">46.254.17.226:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> wl-8-1.nodes.ac</span>
+                <span class="tag-item"><strong>fp</strong> qq</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 43 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.130.43.15:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.130.43.15:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 44 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://1fecf299-efa6-45f1-b7f8-f1cc8814ef4a@5.188.115.69:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">5.188.115.69:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 45 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://16785a51-045d-4939-8969-4869f469ff92@81.163.23.243:8443?encryption=none&fp=firefox&pbk=K9vJ2zLFxi3VTmrguyLC1KrC920axeFSeA8x_xY4Xhw&security=reality&sni=id.pervye.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">81.163.23.243:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> id.pervye.ru</span>
+                <span class="tag-item"><strong>fp</strong> firefox</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 46 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.126.204.43:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.126.204.43:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 47 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.23:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=6ycuxfrEPsqE9eXZ5_Osbnx4g6hXWmkc8pFuAJkJ4jY&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.23:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 48 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.196.224:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.196.224:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 49 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://35699c54-9188-4f43-972e-e8e42dbb104e@94.139.251.189:443?encryption=none&flow=xtls-rprx-vision&fp=chrome&pbk=m_Xgh5XeqmN9JaDxkct4yTup2YPVxCV5fGnUnMZ3pWE&security=reality&sni=apple.com&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">94.139.251.189:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 50 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://d4d22525-a6f0-4919-b745-448c22f39f34@77.221.151.158:443?encryption=none&fp=random&pbk=hEyhCVfwVjIWoXIkG_VfqJ0DsgXbhjap5Waqwq-NqGE&security=reality&sid=cbf2ac&sni=yandex.ru&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">77.221.151.158:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> yandex.ru</span>
+                <span class="tag-item"><strong>fp</strong> random</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 51 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://c7e9c591-2764-423a-afca-efbd010fd396@89.111.172.106:2053?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">89.111.172.106:2053</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 52 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://9b08bee0-2615-46c6-8939-54b575517a26@158.160.57.2:443?encryption=none&security=tls&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">158.160.57.2:443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 53 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://fd22ad82-2d89-4338-b72c-5092ae699c7d@194.67.102.65:8880?encryption=none&security=none&type=ws#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">194.67.102.65:8880</div>
+            <div class="tags">
+                <span class="tag-item"><strong>security</strong> none</span>
+                <span class="tag-item"><strong>type</strong> ws</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 54 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://2c634977-584e-4e1f-b501-1b70c77a6743@78.159.245.32:28474?encryption=none&flow=xtls-rprx-vision&security=tls&type=raw#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">78.159.245.32:28474</div>
+            <div class="tags">
+                <span class="tag-item"><strong>flow</strong> xtls-rprx-vision</span>
+                <span class="tag-item"><strong>security</strong> tls</span>
+                <span class="tag-item"><strong>type</strong> raw</span>
+            </div>
+        </div>
+
+        <!-- КЛЮЧ 55 -->
+        <div class="key-card">
+            <div class="key-header">
+                <span class="protocol">VLESS</span>
+                <button class="btn-copy" onclick="copyKey('vless://423caebf-ce56-4e26-a792-7a6becb17e9b@45.151.102.99:8443?encryption=none&fp=chrome&pbk=OMlQAFrCMZ3DX0xlnbEZiByLBFzpUE8XJHJsrBzLdlY&security=reality&sid=2da4299da566b7&sni=maps.apple.com&type=grpc#%F0%9F%87%AB%F0%9F%87%B2%E2%9A%A1%EF%B8%8F%20%D0%9E%D0%91%D0%A5%D0%9E%D0%94%20%7C%20%D0%90%D0%92%D0%A2%D0%9E-%D0%92%D0%AB%D0%91%D0%9E%D0%A0')">📋 Копировать</button>
+            </div>
+            <div class="address">45.151.102.99:8443</div>
+            <div class="tags">
+                <span class="tag-item"><strong>sni</strong> maps.apple.com</span>
+                <span class="tag-item"><strong>fp</strong> chrome</span>
+                <span class="tag-item"><strong>type</strong> grpc</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Функция копирования одного ключа
+        function copyKey(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ Ключ скопирован!');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        // Функция копирования всех ключей
+        function copyAllKeys() {
+            // Собираем все ключи из карточек прямо из HTML
+            const keyCards = document.querySelectorAll('.key-card .btn-copy');
+            const allKeys = [];
+            keyCards.forEach(btn => {
+                // Берём текст из onclick атрибута
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr) {
+                    const match = onclickAttr.match(/copyKey\('([^']+)'\)/);
+                    if (match) {
+                        allKeys.push(match[1]);
+                    }
+                }
+            });
+            const text = allKeys.join('\n');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ Все ключи скопированы!');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        // Запасной способ копирования
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('✅ Скопировано!');
+            } catch (e) {
+                showToast('❌ Ошибка копирования');
+            }
+            document.body.removeChild(ta);
+        }
+
+        // Уведомление
+        function showToast(msg) {
+            const old = document.querySelector('.toast');
+            if (old) old.remove();
+            const div = document.createElement('div');
+            div.className = 'toast';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
+    </script>
+</body>
+</html>
